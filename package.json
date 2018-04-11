@@ -1,28 +1,28 @@
 {
-  "name": "module-name",
+  "name": "gulp-docker-compose",
   "version": "1.0.0",
-  "description": "Module description",
+  "description": "Gulp <-> Docker Compose binding",
   "main": "index.js",
   "scripts": {
     "build": "npm-run-all --parallel build.*",
     "build.server": "webpack --config webpack.server.js --mode production",
-    "build.client": "webpack --config webpack.client.js --mode production",
     "dev.build": "npm-run-all --parallel dev.build.*",
     "dev.build.server": "webpack --config webpack.server.js --mode development",
-    "dev.build.client": "webpack --config webpack.client.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "this",
-    "that"
+    "gulp",
+    "docker",
+    "compose"
   ],
   "author": "awesome1888@gmail.com",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/awesome1888/module-name"
+    "url": "https://github.com/awesome1888/gulp-docker-compose"
   },
   "dependencies": {
+    "babel-polyfill": "^6.26.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

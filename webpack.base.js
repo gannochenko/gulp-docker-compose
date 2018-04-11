@@ -22,8 +22,6 @@ module.exports = {
     },
 
     externals : {
-        underscore: '_',
-        clone: 'clone',
-        deepEqual: 'deep-equal',
+        'babel-polyfill': 'babel-polyfill',
     }
 };

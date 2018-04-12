@@ -8,7 +8,7 @@ Just make sure you have installed `docker`, `docker-compose` and `node`, and the
 
 ## Usage
 
-### Typical gulp pipeline
+### Typical gulpfile.js
 
 ~~~~
 const gulp = require('gulp');
@@ -57,13 +57,24 @@ var gulpDocker = new GulpDockerCompose(gulp, {
             name: 'docker-compose:restart:app',
             dependences: ['build'],
         },
+        watchYML: {
+            name: 'watch-yml',
+        },
     },
+    extraArgs: {
+        upOnRun: '--scale app=3',
+        upOnYMLChange: '--scale app=3',
+    },
+    exposeCLICommands: true,
+    exposeStdOut: false,
+    exposeStdErr: true,
+    projectFolder: __dirname,
 });
 
 gulp.task('watch', function() {
-    gulp.watch([srcFolder+'/**/*'], ['build', 'docker-compose:restart:app']);
+    gulp.watch([srcFolder+'/**/*'], ['build', 'restart']);
 });
-gulp.task('default', ['build', 'watch', 'docker-compose:run:app']);
+gulp.task('default', ['build', 'watch', 'watch-yml', 'run']);
 ~~~~
 
 ## Options and arguments
@@ -76,7 +87,11 @@ gulp.task('default', ['build', 'watch', 'docker-compose:run:app']);
 
 * `serviceName` (mandatory) - the name of the service to build (typically, the one in `docker-compose.yml` which has `build` directive)
 * `tasks` (optional) - the list of tasks to create, an object with two keys: `run` - stands for `run compose` task, and `restart` - for restart
-* `hangOnInt` (optional, default - `true`) - when the `Ctrl+C` combo is pressed on `gulp watch`, it stops `docker compose`. If the option is set to `false`, it will not override `process.on('SIGINT')` handler, but in this case, the `docker compose` (started as a daemon) will not be terminated. You may call `gulpDocker.stopDockerCompose()` manually in this case.
+* `hangOnInt` (optional, default: `true`) - when the `Ctrl+C` combo is pressed on `gulp watch`, it stops `docker compose`. If the option is set to `false`, it will not override `process.on('SIGINT')` handler, but in this case, the `docker compose` (started as a daemon) will not be terminated. You may call `gulpDocker.stopDockerCompose()` manually in this case.
+* `exposeCLICommands` (optional, default: `false`) - being set to true, allows applied `docker-compose cli` commands to be displayed
+* `exposeStdOut` (optional, default: `false`) - expose `stdout` of `cli` command
+* `exposeStdErr` (optional, default: `true`) - expose `stderr` of `cli` command
+* `projectFolder` (optional) - sets project current folder. Should be set and correct in order to use 'watchYML' task
 
 Both tasks have the same format: an object with the following keys:
 * `name` - the name of the task (an alias `#SERVICE_NAME#` is available and will get replaced with the value of `serviceName`)
@@ -117,24 +132,20 @@ Note that the corresponding `Dockerfile` should be present inside the same folde
 
 In fact, the module only launches the following `docker-compose` commands:
 
-On `run` task:
+On `run` and `restart` tasks:
 ~~~~
 docker-compose up -d --build
 ~~~~
 
-On `restart` task, in series:
+On `docker-compose.yml` file changed:
 ~~~~
-docker-compose stop <service name>;
-docker-compose create --build <service name>;
-docker-compose restart <service name>;
+docker-compose up -d --remove-orphans
 ~~~~
 
 On `Ctrl+C`:
 ~~~~
 docker-compose stop
 ~~~~
-
-If somebody knows more efficient way to get the same result, please let me know.
 
 ## License
 

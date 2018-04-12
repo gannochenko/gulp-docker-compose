@@ -80,7 +80,7 @@ gulp.task('default', ['build', 'watch', 'docker-compose:run:app']);
 
 Both tasks have the same format: an object with the following keys:
 * `name` - the name of the task (an alias `#SERVICE_NAME#` is available and will get replaced with the value of `serviceName`)
-* `dep` - the list of tasks which should be executed before `gulp` enters this task
+* `dependences` - the list of tasks which should be executed before `gulp` enters this task
 
 If no `tasks` block specified, they can be created with `makeRunTask()` and `makeRestartTask()` respectively like the following:
 

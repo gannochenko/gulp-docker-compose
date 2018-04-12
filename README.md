@@ -50,11 +50,11 @@ var gulpDocker = new GulpDockerCompose(gulp, {
     serviceName: 'app',
     tasks: {
         run: {
-            name: 'docker-compose:run:app',
+            name: 'run',
             dependences: ['build'],
         },
         restart: {
-            name: 'docker-compose:restart:app',
+            name: 'restart',
             dependences: ['build'],
         },
         watchYML: {

@@ -1,6 +1,6 @@
 {
   "name": "gulp-docker-compose",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Gulp <-> Docker Compose binding",
   "main": "index.js",
   "scripts": {

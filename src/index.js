@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import process from 'process';
 import child_process from 'child_process';
 
-class GulpDockerCompose
+export class GulpDockerCompose
 {
     constructor(gulp, options = {})
     {
@@ -31,11 +31,11 @@ class GulpDockerCompose
         {
             if (t.run)
             {
-                this.makeRunTask(t.run.deps, t.run.name);
+                this.makeRunTask(t.run.dependences, t.run.name);
             }
             if (t.restart)
             {
-                this.makeRunTask(t.restart.deps, t.restart.name);
+                this.makeRunTask(t.restart.dependences, t.restart.name);
             }
         }
     }
@@ -102,8 +102,6 @@ class GulpDockerCompose
             return;
         }
 
-        const stopAllExtra = this.getExtraArgs().stopAll || '';
-
         process.on('SIGINT', () => {
             this.stopDockerCompose().then(() => {
                 process.exit(0);
@@ -113,6 +111,8 @@ class GulpDockerCompose
 
     stopDockerCompose()
     {
+        const stopAllExtra = this.getExtraArgs().stopAll || '';
+
         return this.exec(`docker-compose stop ${stopAllExtra}`).then((output) => {
             this.printOutput(...output);
         }).catch((error) => {

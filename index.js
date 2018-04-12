@@ -1,1 +1,5 @@
-module.exports = require('./build/server.js');
+const e = require('./build/server.js');
+
+console.dir(e);
+
+module.exports = e;

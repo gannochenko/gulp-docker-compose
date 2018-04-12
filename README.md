@@ -2,8 +2,6 @@
 
 Hey there ;) The binding between `gulp` and `docker compose` lies ahead.
 
-!ATTENTION! This module is currently untested.
-
 ## Installation
 
 Just make sure you have installed `docker`, `docker-compose` and `node`, and the current user is in the `docker` group in order to be able to run `docker` commands without `sudo`.
@@ -19,7 +17,7 @@ const babel = require('gulp-babel');
 const path = require('path');
 const plumber = require('gulp-plumber');
 const vfs = require('vinyl-fs');
-const GulpDockerCompose = require('gulp-docker-compose');
+const GulpDockerCompose = require('gulp-docker-compose').GulpDockerCompose;
 
 const srcFolder = `${__dirname}/src/`;
 const dstFolder = `${__dirname}/build/`;
@@ -53,11 +51,11 @@ var gulpDocker = new GulpDockerCompose(gulp, {
     tasks: {
         run: {
             name: 'docker-compose:run:app',
-            dep: ['build'],
+            dependences: ['build'],
         },
         restart: {
             name: 'docker-compose:restart:app',
-            dep: ['build'],
+            dependences: ['build'],
         },
     },
 });

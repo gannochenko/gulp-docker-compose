@@ -14,12 +14,6 @@ export class GulpDockerCompose
         this._gulp = gulp;
         this._options = options || {};
 
-        const service = this.getServiceName();
-        if (!this.isStringNotEmpty(service))
-        {
-            throw new Error('No service name provided');
-        }
-
         this.makeTasks();
         this.handOnInt();
     }
@@ -35,7 +29,6 @@ export class GulpDockerCompose
             if (t.run)
             {
                 task = t.run;
-
                 name = this.isStringNotEmpty(task.name) ? task.name : 'docker-compose:run:#SERVICE_NAME#';
 
                 this.makeMainTask(task.dependences, name);
@@ -43,7 +36,6 @@ export class GulpDockerCompose
             if (t.restart)
             {
                 task = t.restart;
-
                 name = this.isStringNotEmpty(task.name) ? task.name : 'docker-compose:restart:#SERVICE_NAME#';
 
                 this.makeMainTask(task.dependences, name);
@@ -51,7 +43,6 @@ export class GulpDockerCompose
             if (t.watchYML)
             {
                 task = t.watchYML;
-
                 name = this.isStringNotEmpty(task.name) ? task.name : 'docker-compose:watch-yml';
                 const nameRestart = this.isStringNotEmpty(task.nameRestart) ? task.nameRestart : 'docker-compose:restart-all';
 
@@ -62,10 +53,9 @@ export class GulpDockerCompose
 
     makeMainTask(dependences = [], name = 'docker-compose:run:#SERVICE_NAME#')
     {
-        name = name.replace('#SERVICE_NAME#', this.getServiceName());
         const upExtra = this.getExtraArgs().upOnRun || '';
 
-        this.getGulp().task(name, dependences, () => {
+        this.getGulp().task(this.prepareName(name), dependences, () => {
             return this.exec(`docker-compose up -d --build ${upExtra}`).then((output) => {
                 this.printOutput(...output);
             }).catch((error) => {
@@ -81,40 +71,22 @@ export class GulpDockerCompose
 
         const gulp = this.getGulp();
 
-        gulp.task(nameRestart, () => {
+        gulp.task(this.prepareName(nameRestart), () => {
             return this.exec(`docker-compose up -d --remove-orphans ${upExtra}`).then((output) => {
                 this.printOutput(...output);
             }).catch((error) => {
                 console.error(error.message);
             });
         });
-        this.getGulp().task(name, () => {
+        this.getGulp().task(this.prepareName(name), () => {
             gulp.watch([`${projectFolder}/docker-compose.yml`], [nameRestart]);
         });
     }
 
-    // makeRestartTask(dependences = [], name = 'docker-compose:restart:#SERVICE_NAME#')
-    // {
-    //     name = name.replace('#SERVICE_NAME#', this.getServiceName());
-    //     const sn = this.getServiceName();
-    //     const stopExtra = this.getExtraArgs().stop || '';
-    //     const createExtra = this.getExtraArgs().create || '';
-    //     const restartExtra = this.getExtraArgs().restart || '';
-    //
-    //     this.getGulp().task(name, dependences, () => {
-    //         return this.exec(`docker-compose stop ${sn} ${stopExtra}`).then((output) => {
-    //             this.printOutput(...output);
-    //             return this.exec(`docker-compose create --build ${sn} ${createExtra}`);
-    //         }).then((output) => {
-    //             this.printOutput(...output);
-    //             return this.exec(`docker-compose restart ${sn} ${restartExtra}`);
-    //         }).then((output) => {
-    //             this.printOutput(...output);
-    //         }).catch((error) => {
-    //             console.error(error.message);
-    //         });
-    //     });
-    // }
+    prepareName(name)
+    {
+        return name.replace('#SERVICE_NAME#', this.isStringNotEmpty(this.getServiceName()) ? this.getServiceName() : '');
+    }
 
     async exec(cmd)
     {

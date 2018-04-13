@@ -85,7 +85,7 @@ gulp.task('default', ['build', 'watch', 'watch-yml', 'run']);
 
 ## Options
 
-* `serviceName` (mandatory) - the name of the service to build (typically, the one in `docker-compose.yml` which has `build` directive)
+* `serviceName` (optional) - the name of the service to build (typically, the one in `docker-compose.yml` which has `build` directive)
 * `tasks` (optional) - the list of tasks to create, an object with two keys: `run` - stands for `run compose` task, and `restart` - for restart
 * `hangOnInt` (optional, default: `true`) - when the `Ctrl+C` combo is pressed on `gulp watch`, it stops `docker compose`. If the option is set to `false`, it will not override `process.on('SIGINT')` handler, but in this case, the `docker compose` (started as a daemon) will not be terminated. You may call `gulpDocker.stopDockerCompose()` manually in this case.
 * `exposeCLICommands` (optional, default: `false`) - being set to true, allows applied `docker-compose cli` commands to be displayed

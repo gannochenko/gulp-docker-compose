@@ -56,7 +56,7 @@ export class GulpDockerCompose
         const upExtra = this.getExtraArgs().upOnRun || '';
 
         this.getGulp().task(this.prepareName(name), dependences, () => {
-            return this.exec(`docker-compose up -d --build ${upExtra}`).then((output) => {
+            return this.exec(`${this.getCmdPrefix()} up -d --build ${upExtra}`).then((output) => {
                 this.printOutput(...output);
             }).catch((error) => {
                 console.error(error.message);
@@ -68,18 +68,22 @@ export class GulpDockerCompose
     {
         const upExtra = this.getExtraArgs().upOnYMLChange || '';
         const projectFolder = this.getOptions().projectFolder || './';
+        const fileName = this.getDockerComposeFileName();
 
         const gulp = this.getGulp();
 
         gulp.task(this.prepareName(nameRestart), () => {
-            return this.exec(`docker-compose up -d --remove-orphans ${upExtra}`).then((output) => {
+            return this.exec(`${this.getCmdPrefix()} up -d --remove-orphans ${upExtra}`).then((output) => {
                 this.printOutput(...output);
             }).catch((error) => {
                 console.error(error.message);
             });
         });
+
         this.getGulp().task(this.prepareName(name), () => {
-            gulp.watch([`${projectFolder}/docker-compose.yml`], [nameRestart]);
+            gulp.watch([
+	            fileName ? fileName : `${projectFolder}/docker-compose.yml`,
+            ], [nameRestart]);
         });
     }
 
@@ -129,7 +133,7 @@ export class GulpDockerCompose
     {
         const stopAllExtra = this.getExtraArgs().stopAll || '';
 
-        return this.exec(`docker-compose stop ${stopAllExtra}`).then((output) => {
+        return this.exec(`${this.getCmdPrefix()} stop ${stopAllExtra}`).then((output) => {
             this.printOutput(...output);
         }).catch((error) => {
             console.error(error.message);
@@ -146,6 +150,19 @@ export class GulpDockerCompose
         }
     }
 
+    getCmdPrefix()
+    {
+    	const file = this.getDockerComposeFileName();
+    	if (file === '')
+	    {
+	    	return 'docker-compose';
+	    }
+	    else
+	    {
+	    	return `docker-compose -f ${file}`;
+	    }
+    }
+
     getGulp()
     {
         return this._gulp;
@@ -159,6 +176,11 @@ export class GulpDockerCompose
     getExtraArgs()
     {
         return this.getOptions().extraArgs || {};
+    }
+
+    getDockerComposeFileName()
+    {
+    	return this.getOptions().dockerComposeFileName || '';
     }
 
     getOptions()
